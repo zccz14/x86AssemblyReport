@@ -1,0 +1,48 @@
+\section{实验题目}
+
+求 100 以内能被 7 整除的所有正数之和。
+
+\section{问题分析与实验设计}
+
+解决这个问题我们有若干种思路：
+
+\begin{enumerate}
+    \item 穷举法
+    
+    100 以内的正数是一个有限的集合，因此可以穷举其中的所有元素，验证其是否能被 7 整除，如果是则加到累加器上。
+    
+    100 个数要做 100 次除法，过于暴力，效率太低，不予采纳。
+    
+    \item 递推法
+    
+    7 是最小的符合题设条件的数，设为$A_0$，以及从当前能被7整除的数$A_i$推出下一个能被7整除的数 $A_{i+1} = A_i + 7$。因此可以直接从 7 开始每次加 7，将不超过 100 的所有经过的数都加到累加器里即可。
+    
+    这个方法只需要涉及加法，但总的来说算法复杂度还是线性的 $O(n)$，不予采纳。
+    
+    \item 公式法
+    
+    由简单的数学推导得到一个更一般的结论：在区间$[0, a]$ 中，能被 $n$ 整除的整数之和为：
+    
+    $$
+    \frac{n \lfloor \frac{a}{n} \rfloor (\lfloor \frac{a}{n} \rfloor + 1)}{2}
+    $$
+    
+    代入 $a = 100, n = 7$ 可直接得出答案为 735。
+    
+    下取整除法在具体实现中比较简单，而且配合 DX, AX 可以组装出一个32位的乘法。
+    
+    \lstinputlisting[language={[x86masm]Assembler}, firstline=21, lastline=23, caption=精彩片段]{code/2/main.asm}
+    
+    这里巧妙地利用了循环移位来连接两个寄存器的数据。
+    
+\end{enumerate}
+
+\section{结果分析}
+
+\lstinputlisting[caption={DEBUG: 实验二运行结果}]{code/2/debug.txt}
+
+当运行到 06CA:001E 时，程序进入将要结束的状态，此时 (DX AX) 的值是 000002DF，即16进制的735，答案正确。
+
+\addcontentsline{toc}{section}{附录：完整代码清单}
+\section*{附录：完整代码清单}
+\lstinputlisting[language={[x86masm]Assembler},caption={求100以内能被7整除的数的和}]{code/2/main.asm}

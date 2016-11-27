@@ -1,0 +1,101 @@
+\section{实验题目}
+
+搭建汇编语言运行环境。
+
+在屏幕上打印 “hello, world”。
+
+\section{问题分析与实验设计}
+
+\subsection{搭建环境}
+
+本人使用Windows10系统，搭建汇编的开发环境需要如下组件：
+
+\begin{itemize}
+    
+    \item 汇编器 Assembler
+    
+    Intel x86 汇编的汇编器可以使用\textbf{MASM \footnotemark}，本人使用了代号为 \textbf{masm32v11r} 的版本。
+    
+    \footnotetext{MASM: Microsoft Macro Assembler 微软宏汇编器，但自MASM 6开始，MASM被集成到 VC 系列的工具链中不单独发布了。分离版本的MASM SDK 由一群爱好者维护升级，见 \href{http://masm32.com/}{http://masm32.com}}
+    
+    \item 链接器 Linker
+    
+    链接器被包含在上述 SDK 中，针对生成 16 位的可执行文件的要使用 link16.exe 。
+    
+    \item 运行环境 Runtime Environment
+    
+    DOSBOX \footnotemark 可以模拟 16 位的运行环境，本人使用其0.74版本。
+    
+    \footnotetext{DOSBOX: 可以在各种系统下模拟DOS运行环境，提供16位程序的运行环境，见 \href{www.dosbox.com}{http://www.dosbox.com}。}
+    
+    \item 调试器 Enhanced Debug
+    
+    使用 Debug \footnotemark 作为汇编程序的调试工具，本人使用其一个升级版本。
+    
+    \footnotetext{DEBUG: 著名的程序调试器，具有反汇编、单步调试等功能，见 \href{https://sites.google.com/site/pcdosretro/enhdebug}{https://sites.google.com/site/pcdosretro/enhdebug}}
+    
+\end{itemize}
+
+\subsubsection{安装与配置}
+
+将上述组件全部下载并使用默认设置安装：
+
+结果汇编工具的执行目录在\textbf{C:\textbackslash masm32\textbackslash bin}，而DOSBOX的执行目录在\textbf{C:\textbackslash Program Files (x86)\textbackslash DOSBox-0.74}。
+
+并将DEBUG压缩包中的文件解压到\textbf{C:\textbackslash debug}。
+
+然后将汇编工具的执行目录以及DOSBOX的执行目录添加到Windows系统的环境变量 PATH 中，打开命令行测试\textbf{ml} 与 \textbf{dosbox} 命令有效。
+
+由于DOSBOX也是一个子系统，拥有自己的环境变量，需要将DEBUG的目录配置到DOSBOX的环境变量PATH中。
+
+运行DOSBOX目录下的\textbf{DOSBox 0.74 Options.bat} 批处理文件，将打开一个配置文件，在文件最后的\textbf{autoexec \footnotemark} 域后面附加两行配置：
+
+\footnotetext{autoexec 是DOSBOX启动后自动运行的脚本}
+
+\begin{lstlisting}[caption=DOSBOX AutoExec 配置]
+MOUNT D: C:\debug
+SET PATH=D:\
+\end{lstlisting}
+
+表示将Windows中DEBUG所在的目录挂载到DOSBOX中的D盘分区，然后将D盘根目录添加到DOSBOX的环境变量PATH中。
+
+成功后打开DOSBOX可以直接执行命令 \textbf{DEBUG} 来启动 DEBUG。
+
+\subsubsection{用编辑器编写汇编代码}
+
+新建一个文件夹，创建并编辑其中的 main.asm 文件，本人使用 \textbf{vim} 作为代码编辑器。
+
+\begin{lstlisting}[language=bash]
+$ mkdir 1
+$ cd 1
+$ vim main.asm
+\end{lstlisting}
+
+向 main.asm 中写入“hello, world” 程序代码：
+
+\lstinputlisting[language={[x86masm]Assembler},caption={hello, world}]{code/1/main.asm}
+
+\subsubsection{汇编、链接与运行}
+
+编译与链接使用两个命令完成：
+
+\begin{lstlisting}[language=bash,caption=汇编项目Build脚本——make.bat]
+$ ml -c *.asm && link16 main.obj,main.exe,nul.map,.lib,nul.def
+\end{lstlisting}
+
+为了以后的模块化编程，也可以封装一个Build脚本——\textbf{make.bat}
+
+在DOSBOX命令后附加可执行文件的名字即可运行：
+
+\lstinline{$ dosbox main.exe}
+
+\section{结果分析}
+
+在DOSBOX下运行MAIN.EXE得到结果如下：
+
+\begin{lstlisting}
+C:\>MAIN.EXE
+hello, world
+\end{lstlisting}
+
+查阅 INT 21H / AH = 09H 功能即可了解向控制台输出字符串的详细说明。

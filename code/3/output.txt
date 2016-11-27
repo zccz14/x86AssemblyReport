@@ -1,0 +1,6 @@
+    PIANO    
+ 2 3   5 6 7 
+q w e r t y u
+ s d   g h j 
+z x c v b n m
+Press ESC to exit

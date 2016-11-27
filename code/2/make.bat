@@ -1,0 +1,1 @@
+ml -c *.asm && link16 main.obj,main.exe,nul.map,.lib,nul.def

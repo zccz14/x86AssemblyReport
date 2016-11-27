@@ -1,0 +1,22 @@
+-u
+06CA:0000 B8CC06            MOV     AX,06CC
+06CA:0003 8ED8              MOV     DS,AX
+06CA:0005 BA0000            MOV     DX,0000
+06CA:0008 A10600            MOV     AX,[0006]
+06CA:000B F7360800          DIV     WORD PTR [0008]
+06CA:000F BA0000            MOV     DX,0000
+06CA:0012 8BD8              MOV     BX,AX
+06CA:0014 A10800            MOV     AX,[0008]
+06CA:0017 F7E3              MUL     BX
+06CA:0019 43                INC     BX
+06CA:001A F7E3              MUL     BX
+06CA:001C D1EA              SHR     DX,1
+06CA:001E D1D8              RCR     AX,1
+-g20
+AX=02DF BX=000F CX=002A DX=0000 SP=0000 BP=0000 SI=0000 DI=0000
+DS=06CC ES=06BA SS=06C9 CS=06CA IP=0020 NV UP EI PL ZR AC PE NC
+06CA:0020 B8004C            MOV     AX,4C00
+-g
+
+Program terminated (0000)
+-q

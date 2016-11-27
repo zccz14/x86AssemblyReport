@@ -1,0 +1,1 @@
+ml -c *.asm && link16 main.obj play.obj delay.obj,main.exe,nul.map,.lib,nul.def

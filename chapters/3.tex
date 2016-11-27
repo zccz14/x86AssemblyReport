@@ -1,0 +1,43 @@
+\section{实验题目}
+编写一个简单模拟钢琴的程序，在屏幕上显示钢琴键位，通过键盘控制钢琴。
+
+\section{问题分析与实验设计}
+
+\begin{enumerate}
+    \item 显示一段文字
+    
+    使用 INT 21H / AH = 09H 功能来输出字符串。
+    
+    利用数据区定义变量默认的连续性，可以简洁美观地定义多行字符串输出。
+    
+    \item 延迟 \label{delay}
+    
+    反复检查 61H 端口来实现延迟功能。每 $15.085 \mu s$，从 61H 端口输入的数据中的低5位会发生一次改变，监听这个改变来完成计时。
+    
+    如延迟 1ms 需要监测到 \textbf{约} 66 次这样的变化。
+    
+    可以封装一个以毫秒(ms)为单位的过程来处理这个延迟。
+    
+    \item 播放音乐
+    
+    通过将频率处理后发送至 42H 来使扬声器发声/禁声。
+    
+    首先要先将控制部分（端口号43H）初始化，然后再与 42H 端口进行通讯。
+    
+    \item 键盘输入
+    
+    使用 INT 16H / AH = 00H 功能来从键盘缓冲区读取一个键，无回显。
+    
+\end{enumerate}
+
+\section{结果分析}
+
+\lstinputlisting[caption={钢琴模拟屏幕显示}]{code/3/output.txt}
+
+当按下屏幕上所示的键时，会发出对应音调的音符。
+
+\addcontentsline{toc}{section}{附录：完整代码清单}
+\section*{附录：完整代码清单}
+\lstinputlisting[language={[x86masm]Assembler},caption={钢琴模拟主模块 main.asm}]{code/3/main.asm}
+\lstinputlisting[language={[x86masm]Assembler},caption={钢琴模拟播放模块 play.asm}]{code/3/play.asm}
+\lstinputlisting[language={[x86masm]Assembler},caption={钢琴模拟延迟模块 delay.asm}]{code/3/delay.asm}

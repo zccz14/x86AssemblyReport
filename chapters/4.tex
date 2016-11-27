@@ -1,0 +1,97 @@
+\section{实验题目}
+编写一个迷你射击游戏，有计时、计分功能与子弹飞行动画效果。
+
+\section{问题分析与实验设计}
+
+\subsection{主模块}
+
+主模块要尽量地简短。在游戏类项目中，主模块通常只做初始化(Initialization)与注册主循环(Mainloop)。
+
+\subsubsection{初始化}
+
+初始化包括\textbf{设置视频模式}，\textbf{设置光标格式}，\textbf{初始化目标}以及\textbf{初始化计时器}这四个部分。这些部分都不是需要在每一个回合中处理的。
+
+\begin{itemize}
+    \item 设置视频模式
+    
+    使用 INT 10H / AH = 00H 来设置视频模式。这里使用了 AL = 03H 设置了 $80 \times 25$ 16色文本格式。
+    
+    \item 设置光标格式
+    
+    使用 INT 10H / AH = 01H 来设置光标格式。这里使用了 CX = 0100H 来隐藏光标 (满足CH > CL即可)。
+    
+    \item 初始化目标
+    
+    在屏幕上画出目标。这个功能封装到了目标模块（见章节\ref{target}）中。
+    
+    \item 初始化计时器
+    
+    计时器清零。这个功能封装到了计时模块（见章节\ref{timer})中。
+    
+\end{itemize}
+
+\subsubsection{注册主循环}
+
+在游戏中，玩家会不断采取行动。从设计上，这很可能是一个无限的循环。每一次循环都检查处理完整的事务，也称为一个回合。而一个回合中所有要执行的过程要添加到主循环中，这称为\textbf{注册主循环}。
+
+\lstinputlisting[language={[x86masm]Assembler}, caption={注册主循环片段}, firstline=38, lastline=51]{code/4/main.asm}
+
+可以看到游戏的主逻辑十分清晰：在每一个回合里显示两个板块——\textbf{计分}、\textbf{计时}；然后显示玩家；然后将控制权移交给玩家的控制器。
+
+\subsection{计时模块} \label{timer}
+
+计时模块给出三个方法：\textbf{清空计时器}、\textbf{取计时器的值}、打印默认格式的时间字符串。
+
+使用 INT 21H / AH = 2CH 功能可以获取系统的时间戳，将其保存在模块级变量中可以对其他模块隐藏，保证良好的封装。
+
+计时模块只需要保存一个时间戳即可实现一个计时器的功能，取计时器值的时候只要将获得的值与之前保存的值作差即可得到时间间隔。
+
+\subsection{目标模块} \label{target}
+
+目标模块是保存射击目标的位置、属性，并给出一个方法来绘制它们。
+
+使用 INT 10H / AH = 09H 功能来写带属性的字符。
+
+\subsection{玩家模块} \label{player}
+
+玩家模块保存玩家的位置、得分，玩家自身与子弹的样式，并给出了绘制玩家的方法与\textbf{键盘路由}。
+
+\subsubsection{控制器：键盘路由}
+
+利用 INT 21H / AH = 06H, DL = FFH 功能获取键盘输入后跑一个分发路由。
+
+\lstinputlisting[language={[x86masm]Assembler}, caption={键盘路由片段}, firstline=14, lastline=48]{code/4/player.asm}
+
+\subsubsection{局部读擦写：发射子弹与碰撞检测}
+
+利用移动光标和在光标处写字符很容易局部读写屏幕，实现子弹飞行的动画效果。
+
+利用 INT 10H / AH = 08H 来从屏幕上读取字符来做碰撞检测。
+
+\lstinputlisting[language={[x86masm]Assembler}, caption={子弹飞行与碰撞检测}, firstline=58, lastline=98]{code/4/player.asm}
+
+\subsection{延迟模块}
+
+复用了实验三用过的延迟模块 （见章节\ref{delay}）。
+
+\section{结果分析}
+
+玩家可以用键盘控制：
+
+\begin{itemize}
+    \item 左/右 方向键: 控制玩家 左/右 平移
+    \item 空格: 射击
+    \item e: 退出
+\end{itemize}
+
+左上角显示分数，右上角显示时间。
+
+\addcontentsline{toc}{section}{附录：完整代码清单}
+\section*{附录：完整代码清单}
+
+\lstinputlisting[language={[x86masm]Assembler},caption={射击游戏：主模块 main.asm}]{code/4/main.asm}
+\lstinputlisting[language={[x86masm]Assembler},caption={射击游戏：目标模块 target.asm}]{code/4/target.asm}
+\lstinputlisting[language={[x86masm]Assembler},caption={射击游戏：玩家模块 player.asm}]{code/4/player.asm}
+\lstinputlisting[language={[x86masm]Assembler},caption={射击游戏：计时模块 timer.asm}]{code/4/timer.asm}
+\lstinputlisting[language={[x86masm]Assembler},caption={射击游戏：延迟模块 delay.asm}]{code/4/delay.asm}
+\lstinputlisting[language={[x86masm]Assembler},caption={射击游戏：宏库 macro.inc}]{code/4/macro.inc}
